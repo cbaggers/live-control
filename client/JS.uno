@@ -14,12 +14,17 @@ namespace HamHands
     {
         static HamHandsModule _instance;
 
-        public HamHandsModule(): base(true)
+        public HamHandsModule(): base(true, "lostConnection")
         {
             if (_instance != null) return;
             Uno.UX.Resource.SetGlobalKey(_instance = this, "HamHands");
 
             AddMember(new NativePromise<bool, bool>("connect", Connect));
+
+            var lostConnection = new NativeEvent("lostConnection");
+            On("lostConnection", lostConnection);
+            AddMember(lostConnection);
+            Connection.Lost += OnLostConnection;
         }
 
         static Future<bool> Connect(object[] args)
@@ -27,6 +32,11 @@ namespace HamHands
             var ip = (string)args[0];
             var port = Int.Parse((string)args[1]);
             return new ConnectToServer(ip, port);
+        }
+
+        void OnLostConnection()
+        {
+            Emit("lostConnection");
         }
     }
 }

@@ -55,16 +55,16 @@
   (handler-case
       (let ((binary-types:*endian* :little-endian)
             (running t))
-        (format std-out "Allo from the server thread")
+        (format std-out "~%Allo from the server thread")
         (loop :while running :do
            (when (listen stream)
              (chanl:send chanl-from-thread (read-message stream) :blockp t))
            (when (chanl:recv chanl-to-thread :blockp nil)
              (format std-out "~%~%Hi! Server is shutting down :)")
-             (force-output std-out)
              (setf running nil))))
     (end-of-file (err)
-      (format std-out "Client disconnected~%args:~a~%" err))))
+      (format std-out "Client disconnected~%args:~a~%" err)))
+  (format std-out "~%OUDAHERE"))
 
 (defun read-message (stream)
   (let ((source-name (read-uint32 stream)))
@@ -113,15 +113,22 @@
 
 (defun test (&optional (port 1234))
   (print "ok, let's start")
-  (setf *test-running* t)
-  (with-live-remote (port)
-    (format t "Started")
-    (loop :while *test-running* :do
-       (continuable
-         (update-repl-link)
-         (let ((messages (read-all-remote-messages)))
-           (when messages
-             (print messages)))))))
+  (if *test-running*
+      (print "Test already running")
+      (let (server)
+        (unwind-protect
+             (progn
+               (setf server (make-server port)
+                     *test-running* t)
+               (format t "Started")
+               (loop :while *test-running* :do
+                  (continuable
+                    (update-repl-link)
+                    (let ((messages (read-all-remote-messages)))
+                      (when messages
+                        (print messages))))))
+          (kill-server server)
+          (setf *test-running* nil)))))
 
 (defun stop-test ()
   (setf *test-running* nil))

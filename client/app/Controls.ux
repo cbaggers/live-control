@@ -1,4 +1,5 @@
 <Page ux:Class="ControlPage">
+    <JavaScript File="Controls.js"/>
     <Router ux:Dependency="router" />
     <StackPanel>
         <PanelTool Height="500"/>

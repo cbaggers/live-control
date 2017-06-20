@@ -26,6 +26,8 @@ namespace HamHands
         static uint ANNOUNCE_SOURCE_ID = (uint)((2^32)-1);
         static uint TIME_SYNC_ID = (uint)((2^32)-2);
 
+        static event Action Lost;
+
         //--------------------------------
         // Foo
 
@@ -77,7 +79,7 @@ namespace HamHands
             }
             catch (Exception e)
             {
-                _socket = null;
+                OnLost(e);
             }
         }
 
@@ -110,8 +112,16 @@ namespace HamHands
             }
             catch (Exception e)
             {
-                _socket = null;
+                OnLost(e);
             }
+        }
+
+        static void OnLost(Exception e)
+        {
+            debug_log "CONNECTION LOST [UNO SIDE]";
+            _socket = null;
+            var act = Lost;
+            if (act != null) act();
         }
     }
 

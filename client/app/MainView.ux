@@ -1,6 +1,6 @@
-<App>
+<App Background="#232121">
     <iOS.StatusBarConfig Style="Dark" />
-    <Android.StatusBarConfig Color="#2e2b2b" />
+    <Android.StatusBarConfig Color="#D1D4D4" />
     <Router ux:Name="router" />
 
     <DockPanel>

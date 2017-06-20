@@ -19,14 +19,15 @@ namespace HamHands
         static int _dataSize = sizeof(float4);
 
         static int _bufferSize = _idSize + _groupIDSize + _dataSize;
-        static Buffer _buffer = new Buffer(_bufferSize);
+        static byte[] _data = new byte[_bufferSize];
+        static Buffer _buffer = new Buffer(_data, false);
 
         static HashSet<ITool> _tools = new HashSet<ITool>();
 
         static uint ANNOUNCE_SOURCE_ID = (uint)((2^32)-1);
         static uint TIME_SYNC_ID = (uint)((2^32)-2);
 
-        static event Action Lost;
+        public static event Action Lost;
 
         //--------------------------------
         // Foo
@@ -69,13 +70,13 @@ namespace HamHands
         {
             if (_socket==null) return;
 
-            _buffer.Set(0, groupID);
-            _buffer.Set(4, id);
+            _buffer.Set(0, id);
+            _buffer.Set(4, groupID);
             _buffer.Set(8, data);
 
             try
             {
-                _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
+                Send(_data);
             }
             catch (Exception e)
             {
@@ -91,15 +92,14 @@ namespace HamHands
 
         static void SendAnnounceMessage(ITool tool)
         {
-            var sourceID = tool.ID;
             var name = "dummyName";
 
             var bufferLen = 4 + 4 + 4 + 4 + (4 * name.Length);
             var buffer = new Buffer(bufferLen);
 
             buffer.Set(0, ANNOUNCE_SOURCE_ID);
-            buffer.Set(4, sourceID);
-            buffer.Set(8, sourceID);
+            buffer.Set(4, tool.ID);
+            buffer.Set(8, tool.GroupID);
             buffer.Set(12, name.Length);
 
             for (var i = 0; i < name.Length; i++) {
@@ -108,12 +108,18 @@ namespace HamHands
 
             try
             {
-                _socket.Send(extern<byte[]>(buffer) "@{Uno.Buffer:Of($0)._data}");
+                _socket.Send(_data);
             }
             catch (Exception e)
             {
                 OnLost(e);
             }
+        }
+
+        static void Send(byte[] data)
+        {
+            //_socket.Send(extern<byte[]>(buffer) "@ {Uno.Buffer:Of($0)._data}");
+            _socket.Send(_data);
         }
 
         static void OnLost(Exception e)

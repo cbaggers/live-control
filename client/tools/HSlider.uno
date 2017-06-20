@@ -11,7 +11,7 @@ using Fuse.Drawing.Primitives;
 
 using HamHands;
 
-public partial class SliderTool : ITool
+public partial class HSlider : ITool
 {
     uint _id = UID.Create();
     public uint ID { get { return _id; } }

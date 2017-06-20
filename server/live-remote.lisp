@@ -86,11 +86,13 @@
          (name-char-codes (loop for i below name-len collect (read-uint32 stream)))
          (name (format nil "~s ~{~a~}" name-char-codes (mapcar #'code-char name-char-codes))))
     (setf (gethash new-source-id *source-metadata*) (list name new-source-group-id))
-    (list :new-source-id new-source-id :name name)))
+    (print (list :new-source-id new-source-id :name name))
+    nil))
 
 (defun handle-time-sync (stream)
   (let ((client-time (binary-types:read-binary 'binary-types:u64 stream)))
-    (format t "time sync ~s" client-time)))
+    (format t "time sync ~s" client-time)
+    nil))
 
 
 ;;----------------------------------------------------------------------
@@ -112,7 +114,6 @@
 (defvar *test-running* nil)
 
 (defun test (&optional (port 1234))
-  (print "ok, let's start")
   (if *test-running*
       (print "Test already running")
       (let (server)

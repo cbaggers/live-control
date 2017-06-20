@@ -1,8 +1,13 @@
 <Page ux:Class="ControlPage">
     <JavaScript File="Controls.js"/>
     <Router ux:Dependency="router" />
-    <StackPanel>
-        <PanelTool Height="500"/>
-        <SliderTool />
-    </StackPanel>
+    <DockPanel>
+        <Pad Margin="64"/>
+        <StackPanel Orientation="Horizontal" Dock="Right" ItemSpacing="20" Margin="0,64,64,64">
+            <VSlider />
+            <VSlider />
+            <VSlider />
+            <VSlider />
+        </StackPanel>
+    </DockPanel>
 </Page>

@@ -1,0 +1,20 @@
+<RangeControl ux:Class="VSlider">
+	<Panel ux:Template="GraphicsAppearance" HitTestMode="LocalBounds" Margin="12,0,12,0" SnapToPixels="false">
+		<LinearRangeBehavior Orientation="Vertical" />
+		<Panel ux:Name="vthumb" Anchor="50%,50%" Alignment="Top" Width="50" Height="50" HitTestMode="LocalBounds" >
+			<Circle ux:Name="vthumb_circle" MaxHeight="50" Opacity="1" >
+				<Stroke Width="1" Brush="#a5a8b4" />
+				<DropShadow Angle="90" Distance="0" Size="2" Spread="0.1" Color="#a5a8b4" />
+			</Circle>
+			<Circle ux:Name="halo" Height="38" Fill="#3A3A3A" Opacity="0" ClipToBounds="false" />
+		</Panel>
+		<Panel ClipToBounds="true">
+			<Rectangle ux:Name="scrubber_down" Width="2" Fill="#3f3c3c" CornerRadius="2" />
+			<Rectangle ux:Name="scrubber_up" Width="2" Fill="#3f3c3c" CornerRadius="2" />
+		</Panel>
+		<ProgressAnimation>
+			<Move Target="vthumb" Y="1" RelativeTo="ParentSize" />
+			<Move Target="scrubber_down" Y="1" RelativeTo="ParentSize" />
+		</ProgressAnimation>
+	</Panel>
+</RangeControl>

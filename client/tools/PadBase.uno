@@ -9,7 +9,7 @@ using Fuse.Drawing.Primitives;
 
 using HamHands;
 
-public class PanelTool : Control, ITool
+public class PadBase : Control, ITool
 {
     float2 _currSize = float2(0,0);
     bool _isPressed = false;
@@ -19,10 +19,6 @@ public class PanelTool : Control, ITool
     public uint GroupID { get { return 0; } }
 
     public float4 NormalizedData { get; set; }
-
-    static PanelTool() {
-        //Register scriptClass stuff here
-    }
 
     protected override void OnRooted()
     {
@@ -53,13 +49,22 @@ public class PanelTool : Control, ITool
     {
         args.IsHandled = true;
         _isPressed = true;
-
-        var _localPos = WindowToLocal(args.WindowPoint);
-        debug_log _localPos;
-        NormalizedData = float4(_localPos.X, _localPos.Y, 0f, 0f);
-        Connection.Send(this);
-
+        SetData(WindowToLocal(args.WindowPoint));
         InvalidateVisual();
+    }
+
+    void SetData(float2 windowPoint)
+    {
+        var _localPos = WindowToLocal(windowPoint);
+        var w = ActualSize.X > 0 ? ActualSize.X : 0.01f;
+        var h = ActualSize.Y > 0 ? ActualSize.Y : 0.01f;
+        var nx = _localPos.X / w;
+        var ny = _localPos.Y / h;
+        nx = (nx * 2f) - 1f;
+        ny = (ny * 2f) - 1f;
+        NormalizedData = Uno.Math.Clamp(float4(nx, 1f - ny, 0f, 0f), -1f, 1f);
+        debug_log NormalizedData;
+        Connection.Send(this);
     }
 
     void OnMoved(object sender, PointerMovedArgs args)
@@ -67,12 +72,7 @@ public class PanelTool : Control, ITool
         if(_isPressed)
         {
             args.IsHandled = true;
-
-            var _localPos = WindowToLocal(args.WindowPoint);
-            debug_log _localPos;
-            NormalizedData = float4(_localPos.X, _localPos.Y, 0f, 0f);
-            Connection.Send(this);
-
+            SetData(WindowToLocal(args.WindowPoint));
             InvalidateVisual();
         }
     }

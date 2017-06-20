@@ -7,30 +7,52 @@
 
 ;;----------------------------------------------------------------------
 
+(defstruct tool
+  (id 0 :type (unsigned-byte 32))
+  (group-id 0 :type (unsigned-byte 32)))
+
+;;----------------------------------------------------------------------
+
 (defvar *source-metadata* (make-hash-table))
 (defvar *servers* nil)
 
 (defstruct (server (:constructor %make-server))
   (usocket nil :type t)
-  (channel (error "chanl must be provided")
-           :type chanl:unbounded-channel))
+  (chanl-from-thread (error "chanl must be provided")
+                     :type chanl:unbounded-channel)
+  (chanl-to-thread (error "chanl must be provided")
+                   :type chanl:unbounded-channel))
 
 (defun make-server (&optional (port 1234))
-  (let* ((chanl (make-instance 'chanl:unbounded-channel))
+  (let* ((chanl-from (make-instance 'chanl:unbounded-channel))
+         (chanl-to (make-instance 'chanl:unbounded-channel))
          (uss (usocket:socket-server
-               "127.0.0.1" port #'recieve-thread-loop (list chanl)
+               "127.0.0.1" port
+               #'recieve-thread-loop (list chanl-from chanl-to)
                :element-type '(unsigned-byte 8)
                :in-new-thread t
                :reuse-address t
-               :multi-threading t))
-         (server (%make-server :usocket uss :channel chanl)))
+               :multi-threading t
+               :name "livecontrol-server-thread"))
+         (server (%make-server :usocket uss
+                               :chanl-from-thread chanl-from
+                               :chanl-to-thread chanl-to)))
     (push server  *servers*)
     server))
 
-(defun recieve-thread-loop (stream chanl)
+(defun kill-server (server)
+  (chanl:send (server-chanl-to-thread server) :kill :blockp t))
+
+(defun recieve-thread-loop (stream chanl-from-thread chanl-to-thread)
   (handler-case
-      (let ((binary-types:*endian* :little-endian))
-        (loop :do (chanl:send chanl (read-message stream))))
+      (let ((binary-types:*endian* :little-endian)
+            (running t))
+        (loop :while running :do
+           ;; blocking here can make it blind to being closed -- ↓↓↓↓
+           (chanl:send chanl-from-thread (read-message stream) :blockp t)
+           (when (chanl:recv chanl-to-thread :blockp nil)
+             (format t "Server asked to shut down")
+             (setf running nil))))
     (end-of-file (err)
       (format t "Client disconnected~%args:~a~%" err))))
 
@@ -49,10 +71,11 @@
 
 (defun handle-announce-source (stream)
   (let* ((new-source-id (read-uint32 stream))
+         (new-source-group-id (read-uint32 stream))
          (name-len (read-uint32 stream))
          (name-char-codes (loop for i below name-len collect (read-uint32 stream)))
          (name (format nil "~s ~{~a~}" name-char-codes (mapcar #'code-char name-char-codes))))
-    (setf (gethash new-source-id *source-metadata*) (list name))
+    (setf (gethash new-source-id *source-metadata*) (list name new-source-group-id))
     (list :new-source-id new-source-id :name name)))
 
 (defun handle-time-sync (stream)
@@ -63,18 +86,28 @@
 ;;----------------------------------------------------------------------
 ;; REPL side
 
-(defun read-all-remote-messages (server)
-  (loop :for message = (chanl:recv (server-channel server)
-                                   :blockp nil)
-     :until (null message) :collect message))
+(defun read-all-remote-messages ()
+  (loop :for server :in *servers* :append
+     (loop :for message = (chanl:recv (server-chanl-from-thread server)
+                                      :blockp nil)
+        :until (null message) :collect message)))
 
-(defun test ()
-  (loop :do
-     (loop :for server :in *servers* :do
-        (continuable
-          (update-repl-link)
-          (let ((messages (read-all-remote-messages server)))
-            (when messages
-              (print messages)))))))
+(defmacro with-live-remote ((&optional (port 1234)) &body body)
+  (let ((server (gensym "SERVER")))
+    `(let ((,server (make-server ,port)))
+       (unwind-protect
+            (progn ,@body)
+         (kill-server ,server)))))
+
+(defun test (&optional (port 1234))
+  (print "ok, let's start")
+  (with-live-remote (port)
+    (format t "Started")
+    (loop :do
+       (continuable
+         (update-repl-link)
+         (let ((messages (read-all-remote-messages)))
+           (when messages
+             (print messages)))))))
 
 ;;----------------------------------------------------------------------

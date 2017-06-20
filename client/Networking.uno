@@ -21,8 +21,13 @@ namespace HamHands
         static int _bufferSize = _idSize + _groupIDSize + _dataSize;
         static Buffer _buffer = new Buffer(_bufferSize);
 
-        static uint ANNOUNCE_SOURCE_ID = 2^32-1;
-        static uint TIME_SYNC_ID = 2^32-2;
+        static HashSet<ITool> _tools = new HashSet<ITool>();
+
+        static uint ANNOUNCE_SOURCE_ID = (uint)((2^32)-1);
+        static uint TIME_SYNC_ID = (uint)((2^32)-2);
+
+        //--------------------------------
+        // Foo
 
         internal static void ReplaceSocket(Socket socket)
         {
@@ -33,8 +38,25 @@ namespace HamHands
             else
             {
                 _socket = socket;
+                SendAnnounceMessages();
             }
         }
+
+        //--------------------------------
+        // Tools
+
+        public static void RegisterTool(ITool tool)
+        {
+            if (_tools.Contains(tool)) return;
+
+            _tools.Add(tool);
+
+            if (_socket != null)
+                SendAnnounceMessage(tool);
+        }
+
+        //--------------------------------
+        // Communication
 
         public static void Send(ITool tool)
         {
@@ -49,6 +71,32 @@ namespace HamHands
             _buffer.Set(4, id);
             _buffer.Set(8, data);
             _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
+        }
+
+        static void SendAnnounceMessages()
+        {
+            foreach (var tool in _tools)
+                SendAnnounceMessage(tool);
+        }
+
+        static void SendAnnounceMessage(ITool tool)
+        {
+            var sourceID = tool.ID;
+            var name = "dummyName";
+
+            var bufferLen = 4 + 4 + 4 + 4 + (4 * name.Length);
+            var buffer = new Buffer(bufferLen);
+
+            buffer.Set(0, ANNOUNCE_SOURCE_ID);
+            buffer.Set(4, sourceID);
+            buffer.Set(8, sourceID);
+            buffer.Set(12, name.Length);
+
+            for (var i = 0; i < name.Length; i++) {
+                buffer.Set(16+(4*i), (int)name[i]);
+            }
+
+            _socket.Send(extern<byte[]>(buffer) "@{Uno.Buffer:Of($0)._data}");
         }
     }
 

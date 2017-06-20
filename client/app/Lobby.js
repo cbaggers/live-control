@@ -12,7 +12,7 @@ var connectToServer = function() {
 	hamHands.connect(serverIp.value, port.value).then(function(result) {
 		console.log("Connected!");
 		debugInfo.value = "Connected";
-		router.goto("play", { "artistID" : item.data.name});
+		router.goto("controls");
 	}).catch(function(e) {
 		console.log("Ah balls connect failed: " + e);
 		debugInfo.value = "Connect Failed:\n" + e;

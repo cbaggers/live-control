@@ -1,0 +1,12 @@
+<Page ux:Class="LobbyPage">
+    <JavaScript File="Lobby.js"/>
+    <Router ux:Dependency="router" />
+    <DockPanel>
+        <StackPanel Orientation="Vertical">
+            <Basic.TextInput Value="{serverIp}" Alignment="Center" PlaceholderText="Server IP Address" PlaceholderColor="#bbb" />
+            <Basic.TextInput Value="{port}" Alignment="Center" PlaceholderText="Server Port" PlaceholderColor="#bbb" />
+            <Basic.Button Text="Connect" Clicked="{connectToServer}" />
+            <TextView Value="{debugInfo}" Height="200" TextWrapping="Wrap"/>
+        </StackPanel>
+    </DockPanel>
+</Page>

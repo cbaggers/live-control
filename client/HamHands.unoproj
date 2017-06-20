@@ -1,0 +1,11 @@
+{
+  "Packages": [
+    "Fuse",
+    "FuseJS",
+    "Fuse.BasicTheme",
+    "Uno.Net.Sockets"
+  ],
+  "Includes": [
+    "*",
+  ]
+}

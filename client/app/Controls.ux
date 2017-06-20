@@ -1,0 +1,7 @@
+<Page ux:Class="ControlPage">
+    <Router ux:Dependency="router" />
+    <StackPanel>
+        <PanelTool Height="500"/>
+        <SliderTool />
+    </StackPanel>
+</Page>

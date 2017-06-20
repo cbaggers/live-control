@@ -1,0 +1,14 @@
+<App>
+    <iOS.StatusBarConfig Style="Dark" />
+    <Android.StatusBarConfig Color="#2e2b2b" />
+    <Router ux:Name="router" />
+
+    <DockPanel>
+        <StatusBarBackground Dock="Top"/>
+        <Navigator DefaultPath="lobby">
+            <LobbyPage ux:Template="lobby" router="router" />
+            <ControlPage ux:Template="controls" router="router" />
+        </Navigator>
+        <BottomBarBackground Dock="Bottom" />
+    </DockPanel>
+</App>

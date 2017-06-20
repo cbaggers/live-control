@@ -21,6 +21,9 @@ namespace HamHands
         static int _bufferSize = _idSize + _groupIDSize + _dataSize;
         static Buffer _buffer = new Buffer(_bufferSize);
 
+        static uint ANNOUNCE_SOURCE_ID = 2^32-1;
+        static uint TIME_SYNC_ID = 2^32-2;
+
         internal static void ReplaceSocket(Socket socket)
         {
             if (_socket != null)
@@ -40,12 +43,12 @@ namespace HamHands
 
         public static void Send(uint groupID, uint id, float4 data)
         {
+            if (_socket==null) return;
+
             _buffer.Set(0, groupID);
             _buffer.Set(4, id);
             _buffer.Set(8, data);
-
-            if (_socket!=null)
-                _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
+            _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
         }
     }
 

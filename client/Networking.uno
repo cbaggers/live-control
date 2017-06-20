@@ -70,7 +70,15 @@ namespace HamHands
             _buffer.Set(0, groupID);
             _buffer.Set(4, id);
             _buffer.Set(8, data);
-            _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
+
+            try
+            {
+                _socket.Send(extern<byte[]>(_buffer) "@{Uno.Buffer:Of($0)._data}");
+            }
+            catch (Exception e)
+            {
+                _socket = null;
+            }
         }
 
         static void SendAnnounceMessages()
@@ -96,7 +104,14 @@ namespace HamHands
                 buffer.Set(16+(4*i), (int)name[i]);
             }
 
-            _socket.Send(extern<byte[]>(buffer) "@{Uno.Buffer:Of($0)._data}");
+            try
+            {
+                _socket.Send(extern<byte[]>(buffer) "@{Uno.Buffer:Of($0)._data}");
+            }
+            catch (Exception e)
+            {
+                _socket = null;
+            }
         }
     }
 

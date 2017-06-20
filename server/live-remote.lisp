@@ -28,12 +28,13 @@
          (chanl-to (make-instance 'chanl:unbounded-channel))
          (uss (usocket:socket-server
                "127.0.0.1" port
-               #'recieve-thread-loop (list chanl-from chanl-to)
+               #'recieve-thread-loop
+               (list chanl-from chanl-to *standard-output*)
                :element-type '(unsigned-byte 8)
                :in-new-thread t
                :reuse-address t
                :multi-threading t
-               :name "livecontrol-server-thread"))
+               :name "live-remote-server-thread"))
          (server (%make-server :usocket uss
                                :chanl-from-thread chanl-from
                                :chanl-to-thread chanl-to)))
@@ -41,20 +42,29 @@
     server))
 
 (defun kill-server (server)
+  (format t "trying to kill ~a" server)
   (chanl:send (server-chanl-to-thread server) :kill :blockp t))
 
-(defun recieve-thread-loop (stream chanl-from-thread chanl-to-thread)
+(defun hard-kill-all-servers ()
+  (let ((threads (remove-if-not
+                  (lambda (x) (search "live-remote" (bt:thread-name x)))
+                  (bt:all-threads))))
+    (mapcar #'bt:destroy-thread threads)))
+
+(defun recieve-thread-loop (stream chanl-from-thread chanl-to-thread std-out)
   (handler-case
       (let ((binary-types:*endian* :little-endian)
             (running t))
+        (format std-out "Allo from the server thread")
         (loop :while running :do
-           ;; blocking here can make it blind to being closed -- ↓↓↓↓
-           (chanl:send chanl-from-thread (read-message stream) :blockp t)
+           (when (listen stream)
+             (chanl:send chanl-from-thread (read-message stream) :blockp t))
            (when (chanl:recv chanl-to-thread :blockp nil)
-             (format t "Server asked to shut down")
+             (format std-out "~%~%Hi! Server is shutting down :)")
+             (force-output std-out)
              (setf running nil))))
     (end-of-file (err)
-      (format t "Client disconnected~%args:~a~%" err))))
+      (format std-out "Client disconnected~%args:~a~%" err))))
 
 (defun read-message (stream)
   (let ((source-name (read-uint32 stream)))
@@ -99,15 +109,21 @@
             (progn ,@body)
          (kill-server ,server)))))
 
+(defvar *test-running* nil)
+
 (defun test (&optional (port 1234))
   (print "ok, let's start")
+  (setf *test-running* t)
   (with-live-remote (port)
     (format t "Started")
-    (loop :do
+    (loop :while *test-running* :do
        (continuable
          (update-repl-link)
          (let ((messages (read-all-remote-messages)))
            (when messages
              (print messages)))))))
+
+(defun stop-test ()
+  (setf *test-running* nil))
 
 ;;----------------------------------------------------------------------

@@ -49,20 +49,16 @@ public class PadBase : Control, ITool
     {
         args.IsHandled = true;
         _isPressed = true;
-        SetData(WindowToLocal(args.WindowPoint));
+        SetData(args.WindowPoint);
         InvalidateVisual();
     }
 
-    void SetData(float2 windowPoint)
+    void SetData(float2 wp)
     {
-        var _localPos = WindowToLocal(windowPoint);
-        var w = ActualSize.X > 0 ? ActualSize.X : 0.01f;
-        var h = ActualSize.Y > 0 ? ActualSize.Y : 0.01f;
-        var nx = _localPos.X / w;
-        var ny = _localPos.Y / h;
-        nx = (nx * 2f) - 1f;
-        ny = (ny * 2f) - 1f;
-        NormalizedData = Uno.Math.Clamp(float4(nx, 1f - ny, 0f, 0f), -1f, 1f);
+        var l = WindowToLocal(wp);
+        var o = l / ActualSize;
+        var f = (o*2f)-1f;
+        NormalizedData = float4(f.X, -f.Y, 0f, 0f);
         debug_log NormalizedData;
         Connection.Send(this);
     }
@@ -72,7 +68,7 @@ public class PadBase : Control, ITool
         if(_isPressed)
         {
             args.IsHandled = true;
-            SetData(WindowToLocal(args.WindowPoint));
+            SetData(args.WindowPoint);
             InvalidateVisual();
         }
     }

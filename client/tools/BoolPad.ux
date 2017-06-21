@@ -1,17 +1,16 @@
 <Panel ux:Class="BoolPad">
-	<Circle ux:Name="ledIndicator" Alignment="TopLeft" Width="10" Height="10" Color="#555" Margin="10">
-		<Stroke Width="1" Color="#111" />
+	<Circle ux:Name="ledIndicator" Alignment="TopLeft" Width="10" Height="10" Color="#26262A" Margin="10">
 		<Circle ux:Name="glow" Width="120%" Height="120" Color="#0099FF" Visibility="Collapsed">
 			<Blur />
 		</Circle>
 	</Circle>
-	<Rectangle Color="#333" CornerRadius="10">
-		<Stroke Width="1" Color="#111" />
-		<Shadow Color="#555" Angle="115" />
+	<Rectangle Color="#323236" CornerRadius="10">
+		<!-- <Stroke Width="1" Color="#111" /> -->
+		<!-- <Shadow Color="#555" Angle="115" /> -->
 	</Rectangle>
-	<Pressed>
+	<WhilePressed>
 		<Scale Factor="0.98" Duration="0.04" DurationBack="0.08" />
 		<Change ledIndicator.Color="#0099FF" Delay="0" DelayBack="0.12" />
 		<Change glow.Visibility="Visible" Delay="0" DelayBack="0.12" />
-	</Pressed>
+	</WhilePressed>
 </Panel>

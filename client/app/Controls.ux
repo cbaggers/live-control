@@ -3,13 +3,13 @@
     <Router ux:Dependency="router" />
     <DockPanel>
         <Pad Margin="64"/>
-        <PageControl Dock="Right">
-            <StackPanel Orientation="Horizontal" ItemSpacing="20" Margin="0,64,64,64">
+        <PageControl Dock="Right" Width="40%">
+            <Grid RowCount="1" ColumnCount="4" Margin="0,64,64,64">
                 <VSlider />
                 <VSlider />
                 <VSlider />
                 <VSlider />
-            </StackPanel>
+            </Grid>
             <Grid ux:Name="thePad" RowCount="4" ColumnCount="2" CellSpacing="8" Margin="8">
                 <BoolPad />
                 <BoolPad />

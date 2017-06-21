@@ -2,11 +2,31 @@
     <JavaScript File="Lobby.js"/>
     <Router ux:Dependency="router" />
     <DockPanel>
-        <StackPanel Orientation="Vertical">
-            <Basic.TextInput Value="{serverIp}" Alignment="Center" PlaceholderText="Server IP Address" PlaceholderColor="#bbb" />
-            <Basic.TextInput Value="{port}" Alignment="Center" PlaceholderText="Server Port" PlaceholderColor="#bbb" />
-            <Basic.Button Text="Connect" Clicked="{connectToServer}" />
-            <TextView Value="{debugInfo}" Height="200" TextWrapping="Wrap"/>
+        <StackPanel Width="95%" Orientation="Vertical" Alignment="Center">
+            <Grid ux:Name="loginArea" Padding="0,20" RowCount="2" Columns="auto,1*" Height="160" MaxWidth="400">
+                <TextInput Row="0" Column="1" PlaceholderText="Server IP Address" PlaceholderColor="#999" TextColor="#fff" CaretColor="#fff"
+                           Value="{serverIp}" />
+                <Rectangle Row="0" Column="0" Alignment="Bottom" ColumnSpan="2" Height="1" Color="#fff"/>
+
+                <TextInput Row="1" Column="1" PlaceholderText="Server Port" PlaceholderColor="#999" TextColor="#fff" CaretColor="#fff"
+                           Value="{port}" />
+                <Rectangle Row="1" Column="0" Alignment="Bottom" ColumnSpan="2" Height="1" Color="#fff"/>
+            </Grid>
+            <Panel Row="2" Height="60" Alignment="Center" Clicked="{connectToServer}">
+                <Text ux:Name="text" Alignment="Center" Value="Connect" FontSize="18" Color="#fff"/>
+                <Panel ux:Name="loadingCirclePanel">
+                    <Circle ux:Name="loadingCircle" Width="70%" Height="70%" Opacity="0" StartAngleDegrees="0" LengthAngleDegrees="90">
+                        <Stroke Width="1" Brush="#fff" />
+                    </Circle>
+                </Panel>
+                <Rectangle ux:Name="rectNormalScale" CornerRadius="30" Width="200" Height="40" >
+                    <Stroke Width="1" Brush="#a5a8b4" />
+                </Rectangle>
+                <WhilePressed>
+                    <Scale Factor="0.98" Duration="0.04" DurationBack="0.08" />
+                </WhilePressed>
+            </Panel>
+            <TextView Row="3" Value="{debugInfo}" Height="200" TextWrapping="Wrap"/>
         </StackPanel>
     </DockPanel>
 </Page>

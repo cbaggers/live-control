@@ -4,7 +4,7 @@ var hamHands = require("HamHands");
 var serverIp = Observable("127.0.0.1");
 var port = Observable("1234");
 
-var debugInfo = Observable("- nothing yet -");
+var debugInfo = Observable("");
 
 var connectToServer = function() {
 	console.log("connectToServer");

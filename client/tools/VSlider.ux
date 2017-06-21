@@ -1,4 +1,5 @@
 <RangeControl ux:Class="VSlider">
+    <Text ux:Name="idLabel" Value="foo" Color="#444" Alignment="BottomRight" FontSize="14" />
 	<Panel ux:Template="GraphicsAppearance" HitTestMode="LocalBounds" Margin="12,0,12,0" SnapToPixels="false">
 		<LinearRangeBehavior Orientation="Vertical" />
 		<Panel ux:Name="vthumb" Anchor="50%,50%" Alignment="Top" Width="50" Height="50" HitTestMode="LocalBounds" >

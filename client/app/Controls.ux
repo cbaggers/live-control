@@ -1,6 +1,7 @@
 <Page ux:Class="ControlPage">
     <JavaScript File="Controls.js"/>
     <Router ux:Dependency="router" />
+    <RecButton />
     <DockPanel>
         <Pad Margin="64"/>
         <PageControl Dock="Right" Width="40%">

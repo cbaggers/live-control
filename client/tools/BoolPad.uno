@@ -11,7 +11,7 @@ using Fuse.Drawing.Primitives;
 
 using HamHands;
 
-public partial class VSlider : ITool
+public partial class BoolPad : ITool
 {
     uint _id = UID.Create();
     public uint ID { get { return _id; } }
@@ -25,12 +25,21 @@ public partial class VSlider : ITool
         idLabel.Value = ID.ToString();
     }
 
-    protected override void OnProgressChanged()
+    void OnPress(object sender, object args)
     {
-        base.OnProgressChanged();
-        debug_log "progress=" + Progress;
-        var val = 1f-(float)Progress;
-        NormalizedData = float4(val, val, val, val);
+        var a = (PointerPressedArgs)args;
+        a.IsHandled = true;
+        NormalizedData = float4(1f, 1f, 1f, 1f);
+        debug_log "pad "+ID+" down";
+        Connection.Send(this);
+    }
+
+    void OnRelease(object sender, object args)
+    {
+        var a = (PointerReleasedArgs)args;
+        a.IsHandled = true;
+        NormalizedData = float4(0f, 0f, 0f, 0f);
+        debug_log "pad "+ID+" up";
         Connection.Send(this);
     }
 }

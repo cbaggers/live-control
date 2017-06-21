@@ -1,0 +1,11 @@
+<Panel ux:Class="RecButton" Margin="32" Alignment="TopLeft" HitTestMode="LocalBounds" Pressed="OnPress" Released="OnRelease" >
+    <Text Value="REC" Color="#AAA" Alignment="Center" FontSize="14" />
+    <Circle Width="50" Height="50" >
+        <Stroke  Width="1" Brush="#a5a8b4" />
+        <SolidColor ux:Name="recordColor" Color="#FFF" Opacity="0"/>
+        <DropShadow Angle="90" Distance="0" Size="2" Spread="0.1" Color="#a5a8b4" />
+    </Circle>
+    <WhilePressed>
+        <Change recordColor.Opacity="0.05" Duration="0.16" />
+    </WhilePressed>
+</Panel>
